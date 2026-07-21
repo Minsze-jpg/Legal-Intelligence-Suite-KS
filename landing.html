@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Docket Watch — Legal Intelligence Suite</title>
+  <meta name="description" content="Docket Watch is a CINC legal intelligence platform — AI-powered analysis, motion drafting, and appellate strategy for pro se parents fighting to bring their children home."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0E1117;
+      --surface:  #161B26;
+      --surface2: #1E2535;
+      --border:   #2A3347;
+      --amber:    #F5A623;
+      --amber-dim:#A36D15;
+      --text:     #DDE2EE;
+      --muted:    #7A8BA8;
+      --dim:      #4A5A72;
+      --green:    #3DD68C;
+      --green-dim:#1A5A3A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(14,17,23,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--amber);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    .nav-links a {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--amber) !important;
+      color: var(--bg) !important;
+      font-weight: 700 !important;
+      padding: 7px 18px;
+      border-radius: 5px;
+      font-size: 12px !important;
+      transition: opacity .15s !important;
+    }
+    .nav-cta:hover { opacity: .85; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(ellipse, rgba(245,166,35,.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--amber);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      min-height: 18px;
+    }
+    .hero-headline {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(38px, 6vw, 68px);
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.12;
+      max-width: 780px;
+      margin-bottom: 24px;
+      letter-spacing: -.01em;
+    }
+    .hero-headline em {
+      font-style: italic;
+      color: var(--amber);
+    }
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 18px);
+      color: var(--muted);
+      max-width: 560px;
+      margin-bottom: 44px;
+      line-height: 1.75;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-primary {
+      background: var(--amber);
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 14px 32px;
+      border-radius: 6px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity .15s, transform .15s;
+      letter-spacing: .03em;
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 14px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: color .15s, border-color .15s;
+    }
+    .btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+
+    .hero-stat-row {
+      display: flex;
+      gap: 40px;
+      margin-top: 64px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 32px;
+      color: var(--amber);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    section {
+      padding: 80px 24px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .section-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--amber-dim);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(26px, 4vw, 40px);
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.75;
+      margin-bottom: 48px;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ── CAPABILITY CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover {
+      border-color: var(--amber-dim);
+      transform: translateY(-2px);
+    }
+    .card-icon {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .card-body {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      color: var(--dim);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 3px 7px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .step {
+      padding: 32px 28px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .step:last-child { border-right: none; }
+    .step-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 48px;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 14px;
+      user-select: none;
+    }
+    .step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .step-body {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    /* ── WHO IT'S FOR ── */
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .audience-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 8px 8px 0;
+      padding: 24px;
+    }
+    .audience-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .audience-body {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    /* ── STATUTE BANNER ── */
+    .statute-banner {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 24px;
+      overflow: hidden;
+    }
+    .statute-scroll {
+      display: flex;
+      gap: 48px;
+      animation: scroll-left 30s linear infinite;
+      white-space: nowrap;
+      width: max-content;
+    }
+    .statute-scroll:hover { animation-play-state: paused; }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .statute-item {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: .06em;
+    }
+    .statute-item span {
+      color: var(--amber);
+      margin-right: 8px;
+    }
+
+    /* ── CTA BAND ── */
+    .cta-band {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px;
+      text-align: center;
+    }
+    .cta-band .section-title { margin-bottom: 16px; }
+    .cta-band .section-sub { margin: 0 auto 36px; }
+
+    /* ── DISCLAIMER ── */
+    .disclaimer {
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .disclaimer p {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--dim);
+      line-height: 1.8;
+      letter-spacing: .02em;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-left {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: .08em;
+    }
+    .footer-right {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-right a {
+      font-size: 11px;
+      color: var(--dim);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .footer-right a:hover { color: var(--muted); }
+
+    /* ── TYPING ANIMATION ── */
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 13px;
+      background: var(--amber);
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink .8s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      .nav-links { gap: 14px; }
+      section { padding: 56px 16px; }
+      .steps { grid-template-columns: 1fr; }
+      .step { border-right: none; border-bottom: 1px solid var(--border); }
+      .step:last-child { border-bottom: none; }
+      .hero-stat-row { gap: 24px; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="#">◈ Docket Watch</a>
+  <div class="nav-links">
+    <a href="#capabilities">What It Does</a>
+    <a href="#how">How It Works</a>
+    <a href="#who">Who It's For</a>
+    <a href="./app.html" class="nav-cta">Open Suite →</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-eyebrow" id="eyebrow">
+    <span id="typed-text"></span><span class="cursor"></span>
+  </div>
+  <h1 class="hero-headline">
+    The law gives parents rights.<br/>
+    <em>Docket Watch helps you use them.</em>
+  </h1>
+  <p class="hero-sub">
+    A CINC legal intelligence platform — AI-powered analysis, motion drafting,
+    and appellate strategy for pro se parents fighting to bring their children home.
+  </p>
+  <div class="hero-actions">
+    <a href="./app.html" class="btn-primary">Open the Suite →</a>
+    <a href="#capabilities" class="btn-secondary">See what it does</a>
+  </div>
+  <div class="hero-stat-row">
+    <div class="stat">
+      <div class="stat-num">K.S.A.</div>
+      <div class="stat-label">38-2201 et seq.</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2✕</div>
+      <div class="stat-label">QC pass before filing</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Integrated tools</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Legal fees to use</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ── STATUTE SCROLL ── -->
+<div class="statute-banner">
+  <div class="statute-scroll">
+    <div class="statute-item"><span>K.S.A. 38-2201</span>Family preservation · least-restrictive intervention</div>
+    <div class="statute-item"><span>K.S.A. 38-2242</span>Ex parte protective custody · probable cause required</div>
+    <div class="statute-item"><span>K.S.A. 38-2243</span>Temporary custody hearing · 72-hour requirement</div>
+    <div class="statute-item"><span>K.S.A. 38-2255</span>Disposition · written findings required</div>
+    <div class="statute-item"><span>K.S.A. 38-2258</span>Placement change · 14-day advance notice</div>
+    <div class="statute-item"><span>K.S.A. 38-2264(k)</span>Mandatory prerequisites before TPR petition</div>
+    <div class="statute-item"><span>K.S.A. 38-2269(a)</span>Three-part TPR test · all three findings required</div>
+    <div class="statute-item"><span>K.S.A. 38-2273</span>Appellate jurisdiction · enumerated orders only</div>
+    <div class="statute-item"><span>K.S.A. 60-260(b)</span>Void judgment · fraud · extraordinary circumstances</div>
+    <!-- duplicate for seamless loop -->
+    <div class="statute-item"><span>K.S.A. 38-2201</span>Family preservation · least-restrictive intervention</div>
+    <div class="statute-item"><span>K.S.A. 38-2242</span>Ex parte protective custody · probable cause required</div>
+    <div class="statute-item"><span>K.S.A. 38-2243</span>Temporary custody hearing · 72-hour requirement</div>
+    <div class="statute-item"><span>K.S.A. 38-2255</span>Disposition · written findings required</div>
+    <div class="statute-item"><span>K.S.A. 38-2258</span>Placement change · 14-day advance notice</div>
+    <div class="statute-item"><span>K.S.A. 38-2264(k)</span>Mandatory prerequisites before TPR petition</div>
+    <div class="statute-item"><span>K.S.A. 38-2269(a)</span>Three-part TPR test · all three findings required</div>
+    <div class="statute-item"><span>K.S.A. 38-2273</span>Appellate jurisdiction · enumerated orders only</div>
+    <div class="statute-item"><span>K.S.A. 60-260(b)</span>Void judgment · fraud · extraordinary circumstances</div>
+  </div>
+</div>
+
+<!-- ── CAPABILITIES ── -->
+<section id="capabilities">
+  <div class="section-eyebrow">What it does</div>
+  <h2 class="section-title">Four tools. One goal.</h2>
+  <p class="section-sub">Every feature is built around a single outcome: getting your child home as fast as the law allows.</p>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">📄</div>
+      <div class="card-title">Appellate Analyzer</div>
+      <div class="card-body">
+        Upload your appeal motion. Docket Watch identifies every structural defect and dismissal risk,
+        then drafts a conformed revised motion optimized for reversal — with argument order set to the
+        fastest path to your child coming home. A final QC pass checks every technicality before you file.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Structural Analysis</span>
+        <span class="tag">Likely Ruling</span>
+        <span class="tag">First Impression</span>
+        <span class="tag">Conform</span>
+        <span class="tag">Final QC</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚖️</div>
+      <div class="card-title">District Analyzer</div>
+      <div class="card-body">
+        Upload any district court order, memorandum, or journal entry. The analyzer deconstructs
+        every adverse ruling, checks all statutory requirements, runs K.S.A. 60-260(b) void judgment
+        grounds, and drafts a complete vacate or alter-and-amend motion ready to file.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Order Summary</span>
+        <span class="tag">Due Process</span>
+        <span class="tag">60-260(b)</span>
+        <span class="tag">CINC Checklist</span>
+        <span class="tag">Vacate Framework</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧪</div>
+      <div class="card-title">Theory Lab</div>
+      <div class="card-body">
+        Propose any legal theory. The Lab evaluates it against the Kansas CINC framework, checks
+        whether it's already in your motion, researches unpublished and recent opinions, and — if
+        the theory is beneficial — prompts you to add it with the statutory basis and on-point
+        published case law to review first.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Framework Fit</span>
+        <span class="tag">Deep Research</span>
+        <span class="tag">Saved List</span>
+        <span class="tag">Transfer to Motion</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📝</div>
+      <div class="card-title">Motion Creator</div>
+      <div class="card-body">
+        Upload a district court order and the Motion Creator selects the correct response motion type,
+        drafts a filing-ready motion with caption, numbered arguments, verification, and certificate
+        of service — then runs a final QC pass with a plain-English summary explaining what the motion
+        argues and what to expect.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Motion Selection</span>
+        <span class="tag">Draft Motion</span>
+        <span class="tag">Theory Integration</span>
+        <span class="tag">Strategic Notes</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how">
+  <div class="section-eyebrow">How it works</div>
+  <h2 class="section-title">Upload. Analyze. File.</h2>
+  <p class="section-sub">No account required. No forms to fill out. Upload your document and the suite goes to work.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Upload your document</div>
+      <div class="step-body">Drop in any court order, appeal motion, or memorandum as a PDF, Word document, or text file. The suite reads it in full.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Get the full analysis</div>
+      <div class="step-body">Every defect, every missing statutory finding, every due process violation — organized into clear sections you can read without a law degree. Plain-English summaries explain what it means for your case.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Conform, QC, download</div>
+      <div class="step-body">Produce a filing-ready draft, then run a final QC pass that checks every technicality and dismissal risk. Download, review with an attorney if possible, and file.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ── WHO IT'S FOR ── -->
+<section id="who">
+  <div class="section-eyebrow">Who it's for</div>
+  <h2 class="section-title">Built for people who can't afford to lose.</h2>
+  <p class="section-sub">The child welfare system is complex by design. Docket Watch levels the information gap.</p>
+  <div class="audience-grid">
+    <div class="audience-card">
+      <div class="audience-title">Pro se parents</div>
+      <div class="audience-body">
+        Navigating a CINC case without an attorney is one of the hardest things a parent can do.
+        Docket Watch gives you the same statutory analysis and motion-drafting capacity that a
+        CINC attorney would use — without the hourly rate.
+      </div>
+    </div>
+    <div class="audience-card">
+      <div class="audience-title">Legal aid organizations</div>
+      <div class="audience-body">
+        High-volume family defense work means stretched attorneys and limited research time.
+        Docket Watch accelerates first-pass analysis, surfaces dismissal risks early, and produces
+        draft motions attorneys can review and refine rather than build from scratch.
+      </div>
+    </div>
+    <div class="audience-card">
+      <div class="audience-title">Family advocates & social workers</div>
+      <div class="audience-body">
+        Understanding what the agency is required to do — 14-day notice, mandatory prerequisites,
+        three-part TPR test — helps advocates support families more effectively and catch agency
+        failures before they become permanent outcomes.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ── CTA BAND ── -->
+<div class="cta-band">
+  <h2 class="section-title">Your child deserves every argument the law allows.</h2>
+  <p class="section-sub">
+    Docket Watch is a research and drafting tool — not a substitute for legal counsel.
+    But it gives you the knowledge to fight informed, file correctly, and know your rights.
+  </p>
+  <a href="./app.html" class="btn-primary">Open Docket Watch →</a>
+</div>
+
+<!-- ── DISCLAIMER ── -->
+<div style="background:var(--surface);border-top:1px solid var(--border);">
+  <div class="disclaimer">
+    <p>
+      LEGAL DISCLAIMER — Docket Watch is a legal research and drafting assistance tool only.
+      Nothing in this application constitutes legal advice, creates an attorney-client relationship,
+      or should be relied upon as a substitute for advice from a licensed Kansas attorney.
+      All outputs must be independently verified before filing. Statutory citations, case law references,
+      and motion language produced by this tool must be reviewed by a qualified attorney familiar with
+      K.S.A. 38-2201 et seq. and current Kansas Court of Appeals practice before use in any proceeding.
+      Use of this tool does not guarantee any legal outcome.
+    </p>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-left">◈ DOCKET WATCH · KANSAS LEGAL INTELLIGENCE SUITE · ALL RIGHTS RESERVED</div>
+  <div class="footer-right">
+    <a href="#capabilities">Capabilities</a>
+    <a href="#how">How It Works</a>
+    <a href="#who">Who It's For</a>
+    <a href="./app.html">Open Suite</a>
+  </div>
+</footer>
+
+<!-- ── TYPING ANIMATION ── -->
+<script>
+  const phrases = [
+    "K.S.A. 38-2269(a) — three findings required. All three.",
+    "K.S.A. 38-2242 — probable cause required for removal.",
+    "K.S.A. 38-2258 — 14-day notice before placement change.",
+    "In re B.H., 64 Kan. App. 2d 480 (2024) — withdrawal requires inquiry.",
+    "K.S.A. 38-2273 — your right to appeal is enumerated.",
+  ];
+  let pi = 0, ci = 0, deleting = false, wait = 0;
+  const el = document.getElementById("typed-text");
+
+  function type() {
+    const phrase = phrases[pi];
+    if (wait > 0) { wait--; setTimeout(type, 80); return; }
+    if (!deleting) {
+      el.textContent = phrase.slice(0, ++ci);
+      if (ci === phrase.length) { deleting = true; wait = 28; }
+      setTimeout(type, 42);
+    } else {
+      el.textContent = phrase.slice(0, --ci);
+      if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; wait = 4; }
+      setTimeout(type, 22);
+    }
+  }
+  type();
+</script>
+
+</body>
+</html>

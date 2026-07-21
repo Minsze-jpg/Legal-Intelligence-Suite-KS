@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Docket Watch — Legal Intelligence Suite</title>
+<meta name="description" content="Docket Watch is a CINC legal intelligence platform — AI-powered analysis, motion drafting, and appellate strategy for pro se parents fighting to bring their children home."/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0d1117;color:#e2e8f0;font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+:root{--bg:#0d1117;--surf:#161b26;--surf2:#1e2535;--bdr:#2a3347;--bdrh:#3d4f6e;--amb:#F5A623;--ambd:#a36d15;--txt:#e2e8f0;--mut:#7a8ba8;--dim:#4a5a72;--grn:#3dd68c;--red:#e85d5d;--pur:#a78bfa;}
+
+/* KEY GATE */
+#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.gate-card{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:36px 40px;max-width:480px;width:90%;text-align:center;}
+.gate-logo{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amb);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;}
+.gate-title{font-size:20px;font-weight:700;color:var(--txt);margin-bottom:8px;}
+.gate-desc{font-size:12px;color:var(--mut);line-height:1.7;margin-bottom:24px;}
+.gate-input{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:5px;color:var(--txt);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:11px 14px;outline:none;margin-bottom:12px;transition:border-color .15s;}
+.gate-input:focus{border-color:var(--amb);}
+.gate-btn{width:100%;background:var(--amb);color:var(--bg);border:none;border-radius:5px;font-size:13px;font-weight:700;padding:12px;cursor:pointer;transition:opacity .15s;}
+.gate-btn:hover{opacity:.88;}
+.gate-note{font-size:10px;color:var(--dim);margin-top:14px;font-family:'IBM Plex Mono',monospace;line-height:1.6;}
+.gate-err{background:#2a1212;border:1px solid #e85d5d44;border-radius:4px;padding:8px 12px;color:var(--red);font-size:11px;font-family:'IBM Plex Mono',monospace;margin-bottom:10px;text-align:left;display:none;}
+.gate-link{color:var(--amb);text-decoration:none;}
+
+/* APP SHELL */
+#app{display:none;flex-direction:column;min-height:100vh;}
+.hdr{background:var(--surf);border-bottom:1px solid var(--bdr);padding:14px 24px;}
+.hdr-title{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amb);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px;}
+.hdr-sub{font-size:11px;color:var(--dim);}
+.tabs{display:flex;gap:4px;padding:14px 24px 0;background:var(--surf);border-bottom:1px solid var(--bdr);flex-wrap:wrap;}
+.tab{background:transparent;border:1px solid transparent;border-bottom:none;border-radius:4px 4px 0 0;padding:8px 16px;font-size:12px;color:var(--mut);cursor:pointer;transition:all .15s;font-family:'Inter',system-ui,sans-serif;}
+.tab:hover{color:var(--txt);background:var(--surf2);}
+.tab.ta{background:#1e3a5f;border-color:#2a5a8f;color:#60a5fa;}
+.tab.td{background:#1a3320;border-color:#2a5a3a;color:#4ade80;}
+.tab.tt{background:#2d1b4e;border-color:#4c2d7a;color:var(--pur);}
+.tab.tm{background:#3a1a2e;border-color:#6b2d4f;color:#f9a8d4;}
+.main{flex:1;padding:20px 24px;max-width:960px;width:100%;margin:0 auto;}
+.panel{display:none;}
+.panel.active{display:block;}
+.disc{background:#1a2535;border:1px solid var(--bdr);border-left:3px solid var(--amb);padding:8px 14px;font-size:11px;color:var(--mut);margin-bottom:18px;border-radius:0 4px 4px 0;}
+
+/* UPLOAD */
+.dropzone{border:2px dashed var(--bdr);border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px;background:var(--bg);}
+.dropzone:hover,.dropzone.drag{border-color:var(--amb);background:var(--surf);}
+.dz-icon{font-size:28px;margin-bottom:8px;}
+.dz-label{font-size:13px;color:var(--mut);margin-bottom:4px;}
+.dz-hint{font-size:11px;color:var(--dim);font-family:'IBM Plex Mono',monospace;}
+.dz-name{font-size:13px;color:var(--amb);font-family:'IBM Plex Mono',monospace;}
+
+/* BUTTONS */
+.btn-run{display:block;width:100%;padding:12px;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.04em;margin-bottom:16px;}
+.btn-a{background:#1e3a5f;color:#60a5fa;border:1px solid #2a5a8f;}
+.btn-a:hover:not(:disabled){background:#2a4a6f;}
+.btn-d{background:#1a3320;color:#4ade80;border:1px solid #2a5a3a;}
+.btn-d:hover:not(:disabled){background:#243a28;}
+.btn-t{background:#2d1b4e;color:var(--pur);border:1px solid #4c2d7a;}
+.btn-t:hover:not(:disabled){background:#3d2560;}
+.btn-mc{background:#3a1a2e;color:#f9a8d4;border:1px solid #6b2d4f;}
+.btn-mc:hover:not(:disabled){background:#4a2038;}
+.btn-run:disabled{opacity:.4;cursor:not-allowed;}
+.btn-conform{background:#2a1f3d;border:1px solid var(--pur);border-radius:5px;color:var(--pur);font-size:12px;font-weight:700;padding:7px 16px;cursor:pointer;transition:all .2s;}
+.btn-conform:hover:not(:disabled){background:#3a2f5d;}
+.btn-conform:disabled{opacity:.35;cursor:not-allowed;}
+.btn-qc{background:#1a2f1a;border:1px solid #3dd68c55;border-radius:5px;color:var(--grn);font-size:12px;font-weight:700;padding:7px 16px;cursor:pointer;}
+.btn-qc:hover:not(:disabled){background:#223a22;}
+.btn-qc:disabled{opacity:.35;cursor:not-allowed;}
+.btn-sm{background:var(--surf2);border:1px solid var(--bdr);border-radius:4px;color:var(--mut);font-size:11px;padding:5px 12px;cursor:pointer;}
+.btn-sm:hover{color:var(--txt);}
+.btn-danger{border-color:#e85d5d44!important;color:var(--red)!important;}
+.btn-t2{display:block;width:100%;background:#1a2535;color:var(--pur);border:1px solid #3a2565;padding:9px 18px;border-radius:4px;font-size:12px;cursor:pointer;margin-top:8px;}
+
+/* SUB TABS */
+.stabs{display:flex;flex-wrap:wrap;gap:4px;margin:12px 0;}
+.stab{background:var(--bg);border:1px solid var(--bdr);border-radius:4px;padding:5px 12px;font-size:11px;color:var(--mut);cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .15s;}
+.stab:hover{color:var(--txt);}
+.stab.active{background:var(--surf2);border-color:var(--bdrh);color:var(--txt);}
+.scontent{background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:16px;}
+.pre{white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.75;color:#cbd5e1;font-family:'IBM Plex Mono','Fira Mono',monospace;}
+
+/* EDIT AREA */
+.edit-area{width:100%;min-height:400px;background:#0a0e14;border:1px solid var(--bdr);border-radius:4px;color:var(--txt);font-size:12px;line-height:1.7;padding:12px;font-family:'IBM Plex Mono',monospace;resize:vertical;}
+.edit-btns{display:flex;gap:8px;margin-top:8px;}
+
+/* SPINNER */
+.spin-wrap{display:flex;align-items:center;gap:12px;padding:14px;color:var(--mut);font-size:12px;}
+.spin{width:18px;height:18px;border:2px solid var(--bdr);border-top-color:var(--amb);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ERROR */
+.errb{background:#2a1212;border:1px solid #e85d5d44;border-radius:4px;padding:10px 14px;color:var(--red);font-size:12px;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;}
+
+/* BADGES */
+.badge{background:#1a2f1a;border:1px solid #4ade8044;border-radius:10px;padding:2px 8px;font-size:9px;color:#4ade80;font-family:'IBM Plex Mono',monospace;}
+.badge-rec{background:#2a1f3d;border:1px solid #7c6be844;border-radius:10px;padding:2px 8px;font-size:9px;color:var(--pur);font-family:'IBM Plex Mono',monospace;}
+.theories-badge{background:#1a1f10;border:1px solid #F5A62344;border-radius:4px;padding:7px 12px;font-size:11px;color:var(--amb);font-family:'IBM Plex Mono',monospace;margin-bottom:10px;}
+.btn-row{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+.dl-all{background:var(--surf2);border:1px solid var(--bdr);border-radius:4px;color:var(--mut);font-size:11px;padding:6px 14px;cursor:pointer;font-family:'IBM Plex Mono',monospace;}
+.dl-all:hover{color:var(--txt);}
+
+/* THEORY */
+.theory-input{width:100%;min-height:100px;background:#0a0e14;border:1px solid var(--bdr);border-radius:4px;color:var(--txt);font-size:13px;padding:12px;font-family:'Inter',system-ui,sans-serif;resize:vertical;margin-bottom:12px;}
+.theory-result{margin-top:16px;background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:16px;}
+.rec-box{margin-top:14px;background:#1a2010;border:1px solid #4ade8055;border-radius:6px;padding:14px 16px;}
+.rec-title{font-size:13px;font-weight:700;color:#4ade80;margin-bottom:6px;}
+.rec-body{font-size:12px;color:#a3e6a0;line-height:1.6;}
+.btn-yes{background:#1a3320;border:1px solid #4ade80;border-radius:4px;color:#4ade80;font-size:12px;font-weight:700;padding:7px 16px;cursor:pointer;margin-right:8px;margin-top:10px;}
+.btn-no{background:var(--surf2);border:1px solid var(--bdr);border-radius:4px;color:var(--mut);font-size:12px;padding:7px 16px;cursor:pointer;margin-top:10px;}
+.saved-theories{margin-top:24px;border-top:1px solid var(--bdr);padding-top:18px;}
+.saved-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.saved-title{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amb);letter-spacing:.1em;text-transform:uppercase;}
+.sel-badge{background:#2a1f3d;border:1px solid #7c6be8;border-radius:12px;padding:3px 10px;font-size:10px;color:var(--pur);font-family:'IBM Plex Mono',monospace;}
+.theory-card{background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:12px 14px;margin-bottom:8px;transition:border-color .15s;}
+.theory-card.checked{border-color:var(--amb);background:#141008;}
+.theory-hint{font-size:11px;color:var(--dim);margin-bottom:12px;}
+
+/* QC */
+.qc-sec{margin-bottom:18px;}
+.qc-lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amb);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--bdr);}
+.qc-summary{background:#0a140a;border:1px solid #3dd68c22;border-radius:6px;padding:12px;}
+
+/* MOTION CREATOR */
+.mc-title{font-size:16px;font-weight:700;color:#f9a8d4;margin-bottom:6px;}
+.mc-sub{font-size:12px;color:var(--mut);line-height:1.6;margin-bottom:18px;}
+.mc-ctx{width:100%;min-height:90px;background:#0a0e14;border:1px solid var(--bdr);border-radius:4px;color:var(--txt);font-size:12px;padding:10px;font-family:'Inter',system-ui,sans-serif;resize:vertical;margin-bottom:14px;}
+.mc-lbl{font-size:11px;color:var(--mut);margin-bottom:6px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+.mc-disc{margin-top:20px;background:#1a1010;border:1px solid #3a2020;border-radius:4px;padding:10px 14px;font-size:11px;color:#7a5a5a;font-family:'IBM Plex Mono',monospace;line-height:1.6;}
+.use-dst{background:#1a1020;border:1px solid #6b2d4f44;border-radius:6px;padding:12px 16px;margin-bottom:14px;}
+.section-lbl{font-size:11px;color:var(--mut);font-family:'IBM Plex Mono',monospace;margin-bottom:8px;}
+footer{text-align:center;padding:14px;font-size:10px;color:var(--dim);font-family:'IBM Plex Mono',monospace;border-top:1px solid var(--surf);}
+</style>
+</head>
+<body>
+
+<!-- KEY GATE -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">◈ Docket Watch</div>
+    <div class="gate-title">Legal Intelligence Suite</div>
+    <div class="gate-desc">AI-powered CINC analysis, motion drafting, and appellate strategy for pro se parents fighting to bring their children home.<br/><br/>Enter your Anthropic API key to continue. Your key stays in this browser session only.</div>
+    <div class="gate-err" id="gate-err"></div>
+    <input class="gate-input" id="gate-input" type="password" placeholder="sk-ant-api03-…" autocomplete="off"/>
+    <button class="gate-btn" onclick="submitKey()">Enter Suite →</button>
+    <div class="gate-note">Don't have a key? Get one at <a class="gate-link" href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br/>Your key is never logged, stored on any server, or shared.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-title">◈ Docket Watch — Legal Intelligence Suite</div>
+    <div class="hdr-sub">CINC · Appellate &amp; District Analysis · Motion Drafting</div>
+  </div>
+  <div class="tabs">
+    <button class="tab ta" onclick="switchTab('app')">📄 Appellate Analyzer</button>
+    <button class="tab" onclick="switchTab('dst')" id="tab-dst">⚖ District Analyzer</button>
+    <button class="tab" onclick="switchTab('theory')" id="tab-theory">🧪 Theory Lab</button>
+    <button class="tab" onclick="switchTab('mc')" id="tab-mc">📝 Motion Creator</button>
+  </div>
+  <div class="main">
+    <div class="disc">⚠️ Research and drafting assistance only. All outputs must be independently verified. Nothing here constitutes legal advice.</div>
+
+    <!-- APPELLATE -->
+    <div class="panel active" id="panel-app">
+      <div id="a-drop" class="dropzone" onclick="document.getElementById('a-file').click()" ondragover="ev(event,this,'a')" ondragleave="ev2(this,'a')" ondrop="drop(event,this,'a')">
+        <input type="file" id="a-file" accept=".pdf,.txt,.docx" style="display:none" onchange="fileChosen(this,'a')"/>
+        <div class="dz-icon">📄</div>
+        <div id="a-fname" class="dz-label">Drop your appeal motion here, or click to select</div>
+        <div class="dz-hint">PDF · TXT · DOCX</div>
+      </div>
+      <div class="errb" id="a-err" style="display:none"></div>
+      <button class="btn-run btn-a" id="a-btn" onclick="runApp()" disabled>▶ Analyze Appeal Motion</button>
+      <div id="a-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Running appellate analysis…</span></div></div>
+      <div id="a-result" style="display:none">
+        <div class="btn-row">
+          <button class="dl-all" onclick="dlAll('a')">⬇ Download Full Analysis</button>
+          <button class="btn-conform" id="a-conform-btn" onclick="runConform()">✦ Conform Motion</button>
+          <button class="btn-qc" id="a-qc-btn" onclick="runAQC()" style="display:none">⚡ Run Final QC</button>
+        </div>
+        <div id="a-theory-badge" style="display:none" class="theories-badge"></div>
+        <div class="errb" id="a-conform-err" style="display:none"></div>
+        <div id="a-conform-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Conforming motion — optimizing for fastest child return…</span></div></div>
+        <div id="a-qc-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Running final QC pass…</span></div></div>
+        <div class="stabs" id="a-stabs"></div>
+        <div class="scontent" id="a-scontent"></div>
+      </div>
+    </div>
+
+    <!-- DISTRICT -->
+    <div class="panel" id="panel-dst">
+      <div id="d-drop" class="dropzone" onclick="document.getElementById('d-file').click()" ondragover="ev(event,this,'d')" ondragleave="ev2(this,'d')" ondrop="drop(event,this,'d')">
+        <input type="file" id="d-file" accept=".pdf,.txt,.docx" style="display:none" onchange="fileChosen(this,'d')"/>
+        <div class="dz-icon">⚖️</div>
+        <div id="d-fname" class="dz-label">Drop the district court order or memorandum here</div>
+        <div class="dz-hint">PDF · TXT · DOCX — orders, memoranda, journal entries</div>
+      </div>
+      <div class="errb" id="d-err" style="display:none"></div>
+      <button class="btn-run btn-d" id="d-btn" onclick="runDst()" disabled>⚖ Analyze Order / Memorandum</button>
+      <div id="d-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Running district order analysis…</span></div></div>
+      <div id="d-result" style="display:none">
+        <button class="dl-all" onclick="dlAll('d')" style="margin-bottom:12px">⬇ Download Full Analysis</button>
+        <div class="stabs" id="d-stabs"></div>
+        <div class="scontent" id="d-scontent"></div>
+      </div>
+    </div>
+
+    <!-- THEORY -->
+    <div class="panel" id="panel-theory">
+      <div class="section-lbl">Propose a legal theory for evaluation against the CINC framework</div>
+      <textarea class="theory-input" id="t-input" placeholder="e.g. The court proceeded on an unobjected-to proffer when Rashad's counsel was absent, violating K.S.A. 38-2248(e) and In re A.K…"></textarea>
+      <button class="btn-run btn-t" id="t-btn" onclick="runTheory()">▶ Evaluate Theory</button>
+      <div id="t-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Evaluating theory against CINC framework…</span></div></div>
+      <div class="errb" id="t-err" style="display:none"></div>
+      <div id="t-result" style="display:none">
+        <div class="theory-result">
+          <div class="pre" id="t-output"></div>
+          <div id="t-rec-box" style="display:none" class="rec-box">
+            <div class="rec-title">⚡ Beneficial Theory Detected</div>
+            <div class="rec-body" id="t-rec-reason"></div>
+            <div class="rec-body" style="margin-top:6px;color:#fde68a">This theory is not currently in your appeal motion. Would you like to add it?</div>
+            <button class="btn-yes" onclick="saveTheory(true)">✓ Yes — Add to Motion</button>
+            <button class="btn-no" onclick="saveTheory(false)">✕ Save for Review Only</button>
+          </div>
+          <div id="t-save-btn" style="display:none;margin-top:10px">
+            <button class="btn-sm" onclick="saveTheory(false)">💾 Save Theory to List</button>
+          </div>
+          <button class="btn-t2" id="t-deep-btn" onclick="runDeep()">🔬 Dig Deeper — Research Unpublished &amp; Recent Opinions</button>
+          <div id="t-deep-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Researching unpublished opinions and recent authority…</span></div></div>
+          <div id="t-deep-output" style="display:none;margin-top:16px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--pur);margin-bottom:6px">Deep Research Results</div>
+            <div class="pre" id="t-deep-text"></div>
+          </div>
+        </div>
+      </div>
+      <div id="t-saved" style="display:none" class="saved-theories">
+        <div class="saved-hdr">
+          <div class="saved-title">📋 Saved Theories</div>
+          <div class="sel-badge" id="t-sel-count" style="display:none"></div>
+        </div>
+        <div class="theory-hint">Check theories you want to transfer to Appellate Conform or Motion Creator.</div>
+        <div id="t-list"></div>
+      </div>
+    </div>
+
+    <!-- MOTION CREATOR -->
+    <div class="panel" id="panel-mc">
+      <div class="mc-title">⚖ Motion Creator</div>
+      <div class="mc-sub">Upload a district court order to deconstruct it, select the correct response motion, and draft a complete filing-ready motion.</div>
+      <div id="mc-theory-badge" style="display:none" class="theories-badge"></div>
+      <div class="use-dst" id="mc-dst-opt" style="display:none">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="mc-use-dst" onchange="toggleUseDst()" style="width:16px;height:16px;accent-color:var(--pur)"/>
+          <span style="color:var(--pur);font-family:'IBM Plex Mono',monospace;font-size:12px">Use output from District Analyzer (order already analyzed)</span>
+        </label>
+      </div>
+      <div id="mc-drop-wrap">
+        <div id="mc-drop" class="dropzone" onclick="document.getElementById('mc-file').click()" ondragover="ev(event,this,'mc')" ondragleave="ev2(this,'mc')" ondrop="drop(event,this,'mc')">
+          <input type="file" id="mc-file" accept=".pdf,.txt,.docx" style="display:none" onchange="fileChosen(this,'mc')"/>
+          <div class="dz-icon">📋</div>
+          <div id="mc-fname" class="dz-label">Drop the district court order, memorandum, or journal entry here</div>
+          <div class="dz-hint">PDF · TXT · DOCX</div>
+        </div>
+      </div>
+      <div class="mc-lbl" style="margin-top:14px">Additional context (optional)</div>
+      <textarea class="mc-ctx" id="mc-ctx" placeholder="e.g. Case No. SN-2025-JC-000177 — order entered June 29, 2026. Counsel withdrew same day without judicial inquiry. Need B.H. grounds and missing 38-2269(a) findings…"></textarea>
+      <div class="errb" id="mc-err" style="display:none"></div>
+      <button class="btn-run btn-mc" id="mc-btn" onclick="runMC()" disabled>⚖ Analyze Order &amp; Draft Motion</button>
+      <div id="mc-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Deconstructing order and drafting response motion…</span></div></div>
+      <div id="mc-result" style="display:none">
+        <div class="btn-row">
+          <button class="dl-all" onclick="dlAll('mc')">⬇ Download All</button>
+          <button class="btn-conform" id="mc-revise-btn" onclick="runRevise()">✦ Revise Motion</button>
+          <button class="btn-qc" id="mc-qc-btn" onclick="runMCQC()" style="display:none">⚡ Run Final QC</button>
+        </div>
+        <div class="errb" id="mc-revise-err" style="display:none"></div>
+        <div id="mc-revise-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Revising motion with selected theories…</span></div></div>
+        <div id="mc-qc-spin" style="display:none"><div class="spin-wrap"><div class="spin"></div><span>Running final QC pass…</span></div></div>
+        <div class="stabs" id="mc-stabs"></div>
+        <div class="scontent" id="mc-scontent"></div>
+      </div>
+      <div class="mc-disc">⚠ Draft motions are research and drafting assistance only. All citations must be independently verified before filing. This tool does not constitute legal advice.</div>
+    </div>
+  </div>
+  <footer>Docket Watch · Legal Intelligence Suite · All outputs for research purposes only · Verify all citations before filing</footer>
+</div>
+
+<script>
+// ── STATE ──
+const S = {
+  key: "",
+  aText: "", aRaw: "", aConformed: "", aQCRaw: "",
+  dRaw: "",
+  theories: [],   // {id,text,r1,r2,date,selected,rec}
+  tCurrent: {text:"",r1:"",r2:"",rec:null},
+  mcDraft: "", mcRevised: "", mcQCRaw: "",
+  curTab: "app",
+  aTabs: [], dTabs: [], mcTabs: [],
+  aSubTab: "", dSubTab: "", mcSubTab: "",
+};
+
+// ── KEY GATE ──
+window.onload = () => {
+  const saved = sessionStorage.getItem("dw_key");
+  if (saved) { S.key = saved; showApp(); }
+  document.getElementById("gate-input").addEventListener("keydown", e => { if(e.key==="Enter") submitKey(); });
+};
+
+function submitKey() {
+  const v = document.getElementById("gate-input").value.trim();
+  const err = document.getElementById("gate-err");
+  err.style.display = "none";
+  if (!v.startsWith("sk-ant-")) {
+    err.textContent = "⚠ That doesn't look like an Anthropic API key. Keys start with sk-ant-";
+    err.style.display = "block"; return;
+  }
+  S.key = v;
+  sessionStorage.setItem("dw_key", v);
+  showApp();
+}
+
+function showApp() {
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+  document.getElementById("app").style.flexDirection = "column";
+}
+
+// ── TAB SWITCHING ──
+function switchTab(t) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(b => b.className = "tab");
+  document.getElementById("panel-"+t).classList.add("active");
+  const map = {app:"ta",dst:"td",theory:"tt",mc:"tm"};
+  document.querySelector(`[onclick="switchTab('${t}')"]`).classList.add(map[t]);
+  S.curTab = t;
+  updateTheoryBadges();
+}
+
+// ── DRAG/DROP ──
+function ev(e,el,id) { e.preventDefault(); el.classList.add("drag"); }
+function ev2(el,id) { el.classList.remove("drag"); }
+function drop(e,el,id) {
+  e.preventDefault(); el.classList.remove("drag");
+  const f = e.dataTransfer.files[0]; if(f) setFile(id,f);
+}
+function fileChosen(inp,id) { if(inp.files[0]) setFile(id,inp.files[0]); }
+function setFile(id,f) {
+  const el = document.getElementById(id+"-fname");
+  if (el) { el.textContent = "📎 "+f.name; el.className = "dz-name"; }
+  const btn = document.getElementById(id+"-btn");
+  if (btn) btn.disabled = false;
+  if (id==="a") { S.aFile = f; }
+  else if (id==="d") { S.dFile = f; }
+  else if (id==="mc") { S.mcFile = f; S.mcBtn && (S.mcBtn=true); checkMCBtn(); }
+}
+
+function checkMCBtn() {
+  const useDst = document.getElementById("mc-use-dst").checked;
+  document.getElementById("mc-btn").disabled = !useDst && !S.mcFile;
+}
+
+function toggleUseDst() {
+  const useDst = document.getElementById("mc-use-dst").checked;
+  document.getElementById("mc-drop-wrap").style.display = useDst ? "none" : "block";
+  checkMCBtn();
+}
+
+// ── FILE READING ──
+async function readFile(f) {
+  if (!f) return null;
+  const ext = f.name.split(".").pop().toLowerCase();
+  if (ext === "txt") return await f.text();
+  if (ext === "pdf") {
+    const buf = await f.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b));
+    return {type:"pdf", data:btoa(bin)};
+  }
+  if (ext === "docx" && window.mammoth) {
+    const res = await window.mammoth.extractRawText({arrayBuffer: await f.arrayBuffer()});
+    return res.value;
+  }
+  return await f.text();
+}
+
+// ── API CALL ──
+async function claude(system, userContent, maxTok=4000) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key": S.key,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:maxTok, system,
+      messages:[{role:"user", content:userContent}]})
+  });
+  if (!r.ok) { const e = await r.json().catch(()=>{}); throw new Error(e?.error?.message||"API "+r.status); }
+  const d = await r.json();
+  return (d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+}
+
+function extr(raw,tag) {
+  const m = raw.match(new RegExp("\\["+tag+"\\]([\\s\\S]*?)\\[/"+tag+"\\]","i"));
+  return m ? m[1].trim() : "";
+}
+
+function dl(content, fname) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([content],{type:"text/plain"}));
+  a.download = fname; a.click();
+}
+
+// ── SHOW/HIDE HELPERS ──
+function show(id) { const e=document.getElementById(id); if(e) e.style.display="block"; }
+function hide(id) { const e=document.getElementById(id); if(e) e.style.display="none"; }
+function setText(id,t) { const e=document.getElementById(id); if(e) e.textContent=t; }
+function setHTML(id,h) { const e=document.getElementById(id); if(e) e.innerHTML=h; }
+
+// ── SUB TABS ──
+function buildSubTabs(prefix, tabs, defaultTab) {
+  const stabs = document.getElementById(prefix+"-stabs");
+  const scontent = document.getElementById(prefix+"-scontent");
+  stabs.innerHTML = tabs.map(([id,lbl]) =>
+    `<button class="stab${id===defaultTab?" active":""}" onclick="switchSub('${prefix}','${id}')">${lbl}</button>`
+  ).join("");
+  S[prefix+"Tabs"] = tabs;
+  S[prefix+"SubTab"] = defaultTab;
+  renderSubTab(prefix, defaultTab);
+}
+
+function switchSub(prefix, id) {
+  S[prefix+"SubTab"] = id;
+  document.querySelectorAll(`#${prefix}-stabs .stab`).forEach(b => {
+    b.classList.toggle("active", b.textContent.trim() === S[prefix+"Tabs"].find(t=>t[0]===id)?.[1]);
+  });
+  // Re-render active state properly
+  const tabs = S[prefix+"Tabs"];
+  const stabs = document.getElementById(prefix+"-stabs");
+  stabs.querySelectorAll(".stab").forEach((b,i) => {
+    b.classList.toggle("active", tabs[i]?.[0] === id);
+  });
+  renderSubTab(prefix, id);
+}
+
+function renderSubTab(prefix, id) {
+  const el = document.getElementById(prefix+"-scontent");
+  if (!el) return;
+  if (prefix==="a") renderASubTab(id, el);
+  else if (prefix==="d") renderDSubTab(id, el);
+  else if (prefix==="mc") renderMCSubTab(id, el);
+}
+
+// ── APPELLATE ANALYZER ──
+const ASYS = `You are a Kansas appellate litigation analyst specializing in CINC matters under K.S.A. 38-2201 et seq. You have deep knowledge of Kansas Court of Appeals decisional patterns. You never reveal judge names or internal methodology.
+
+ANALYSIS PROTOCOL:
+1. JUDICIAL SCHEMA COMPARISON: Score the motion (Likely Persuasive/Neutral/Against). Output scorecard table labeled Pattern A through L.
+2. MOST LIKELY RULING: Affirm/Reverse/Remand/Dismiss/Vacate with probability-weighted reasoning. Identify weakest and strongest arguments.
+3. FIRST IMPRESSION ISSUES: Flag any issue with no published Kansas precedent.
+4. STRUCTURAL ERRORS: List every procedural or evidentiary defect — missing findings, unpreserved arguments, record gaps, proffer issues.
+5. FILING CHECKLIST: Confirm compliance with Shawnee County Local Rules, K.S.A. 60-260(b), K.S.A. 38-2273, Kansas Rules of Appellate Procedure.
+
+OUTPUT FORMAT use exact markers:
+[SCORECARD]...[/SCORECARD]
+[RULING]...[/RULING]
+[FIRST_IMPRESSION]...[/FIRST_IMPRESSION]
+[STRUCTURAL_ERRORS]...[/STRUCTURAL_ERRORS]
+[FILING_CHECKLIST]...[/FILING_CHECKLIST]`;
+
+async function runApp() {
+  if (!S.aFile) return;
+  show("a-spin"); hide("a-err"); hide("a-result");
+  document.getElementById("a-btn").disabled = true;
+  S.aText = ""; S.aRaw = ""; S.aConformed = ""; S.aQCRaw = "";
+  try {
+    const content = await readFile(S.aFile);
+    let userContent;
+    if (content && typeof content === "object" && content.type==="pdf") {
+      userContent = [{type:"document",source:{type:"base64",media_type:"application/pdf",data:content.data}},
+        {type:"text",text:"Analyze this Kansas appellate motion using the full protocol."}];
+      S.aText = "[PDF]";
+    } else {
+      S.aText = content || "";
+      userContent = "MOTION TEXT:\n"+content+"\n\nAnalyze using the full protocol.";
+    }
+    S.aRaw = await claude(ASYS, userContent, 4000);
+    buildAResult();
+  } catch(e) {
+    show("a-err"); setText("a-err","⚠ "+e.message);
+  }
+  hide("a-spin");
+  document.getElementById("a-btn").disabled = false;
+}
+
+function buildAResult() {
+  const tabs = [["scorecard","Scorecard"],["ruling","Likely Ruling"],["first","First Impression"],
+    ["errors","Structural Errors"],["checklist","Filing Checklist"],["conformed","✦ Conformed Motion"]];
+  buildSubTabs("a", tabs, "scorecard");
+  show("a-result");
+  updateTheoryBadges();
+}
+
+function renderASubTab(id, el) {
+  if (id==="scorecard") el.innerHTML = `<div class="pre">${esc(extr(S.aRaw,"SCORECARD")||"No scorecard generated.")}</div>`;
+  else if (id==="ruling") el.innerHTML = `<div class="pre">${esc(extr(S.aRaw,"RULING")||"No ruling generated.")}</div>`;
+  else if (id==="first") el.innerHTML = `<div class="pre">${esc(extr(S.aRaw,"FIRST_IMPRESSION")||"No first impression analysis.")}</div>`;
+  else if (id==="errors") el.innerHTML = `<div class="pre">${esc(extr(S.aRaw,"STRUCTURAL_ERRORS")||"No structural errors identified.")}</div>`;
+  else if (id==="checklist") el.innerHTML = `<div class="pre">${esc(extr(S.aRaw,"FILING_CHECKLIST")||"No checklist generated.")}</div>`;
+  else if (id==="conformed") {
+    if (S.aConformed) el.innerHTML = editPanel(S.aConformed,"conformed-motion-"+Date.now()+".txt","a-edit");
+    else el.innerHTML = `<div class="pre" style="color:var(--dim)">Click "✦ Conform Motion" above to generate the conformed revised motion.</div>`;
+  }
+  else if (id==="aqc") el.innerHTML = renderQC(S.aQCRaw);
+}
+
+// ── CONFORM ──
+const CONFORM_SYS = `You are a Kansas appellate litigation specialist. Your ONLY goal is to get the child returned to the parent as quickly as possible through the appellate process.
+
+Produce a CONFORMED REVISED MOTION that:
+- Eliminates EVERY dismissal risk in the analysis
+- Fixes EVERY structural error
+- Incorporates EVERY beneficial theory provided (if any)
+- Optimizes argument ORDER: jurisdictional defects first → missing findings → proffer violations → due process → constitutional → evidentiary → best interests
+- Never frames any argument that could accelerate TPR
+- Maintains parent credibility as the central strategic asset
+
+MANDATORY ELEMENTS:
+- K.S.A. 38-2273 jurisdiction statement opening
+- Address mootness under State v. Phipps, No. 125,269 (Kan. June 27, 2025)
+- Standard of review per argument
+- Every factual assertion anchored to record
+- Every argument preserved below or plain error argued
+- K.S.A. 38-2269(a) three-part checklist against journal entry
+- Mathews v. Eldridge balancing for due process arguments
+- In re B.H., 64 Kan. App. 2d 480 (2024) for counsel withdrawal
+- In re A.S., 319 Kan. 396 (2024) for right to testify
+- In re K.R., No. 128161 (Kan. Jan. 16, 2026) for missing findings
+- In re A.K., No. 127259 (Kan. July 18, 2025) for proffer issues
+- Full caption, numbered arguments, conclusion, verification, certificate of service
+
+OUTPUT FORMAT:
+[CONFORMED_MOTION]...[/CONFORMED_MOTION]`;
+
+async function runConform() {
+  if (!S.aText) { show("a-conform-err"); setText("a-conform-err","⚠ Re-upload the motion first."); return; }
+  show("a-conform-spin"); hide("a-conform-err");
+  document.getElementById("a-conform-btn").disabled = true;
+  S.aConformed = ""; S.aQCRaw = "";
+  hide("a-qc-btn");
+  try {
+    const theories = S.theories.filter(t=>t.selected);
+    const tb = theories.length ? "\n\nBENEFICIAL THEORIES TO INCORPORATE:\n"+theories.map((t,i)=>`${i+1}. ${t.text}\nEVALUATION: ${t.r1}\nDEEP RESEARCH: ${t.r2||"(not run)"}`).join("\n\n") : "";
+    const msg = "ORIGINAL APPEAL MOTION:\n"+S.aText+"\n\nAPPELLATE ANALYSIS:\n"+S.aRaw+tb+"\n\nProduce the conformed revised motion.";
+    const r = await claude(CONFORM_SYS, msg, 4000);
+    S.aConformed = extr(r,"CONFORMED_MOTION") || r;
+    // Add conformed tab if not there
+    if (!S.aTabs.find(t=>t[0]==="conformed")) S.aTabs.push(["conformed","✦ Conformed Motion"]);
+    if (!S.aTabs.find(t=>t[0]==="aqc")) S.aTabs.push(["aqc","⚡ Final QC"]);
+    rebuildStabs("a");
+    switchSub("a","conformed");
+    show("a-qc-btn");
+  } catch(e) { show("a-conform-err"); setText("a-conform-err","⚠ "+e.message); }
+  hide("a-conform-spin");
+  document.getElementById("a-conform-btn").disabled = false;
+}
+
+const QC_SYS = `You are a Kansas appellate court clerk and senior appellate litigator doing a final QC pass.
+
+CHECK IN ORDER:
+1. DISMISSAL TECHNICALITIES: K.S.A. 38-2273 jurisdiction, mootness (Phipps), preservation, plain error, caption, certificate of service, verification.
+2. WEAK SPOTS: Weakest argument and why. Citations needing verification [VERIFY BEFORE FILING]. Factual assertions not tied to record. Internal inconsistencies. Arguments that could backfire.
+3. MISSING AUTHORITIES: Controlling Kansas authority not cited. 2024-2026 KSC or COA opinions that should be addressed.
+4. FINAL ASSESSMENT: Dismissal risk HIGH/MEDIUM/LOW. Most likely outcome. Top 3 fixes ranked. Probability child returned: __%
+5. FINAL SUMMARY FOR PARENT: Plain English — what this motion argues, why it gives best chance of getting child home, realistic timeline, what parent should do while waiting.
+
+OUTPUT FORMAT:
+[QC_DISMISSAL]...[/QC_DISMISSAL]
+[QC_WEAK_SPOTS]...[/QC_WEAK_SPOTS]
+[QC_MISSING]...[/QC_MISSING]
+[QC_ASSESSMENT]...[/QC_ASSESSMENT]
+[QC_SUMMARY]...[/QC_SUMMARY]`;
+
+async function runAQC() {
+  if (!S.aConformed) return;
+  show("a-qc-spin");
+  document.getElementById("a-qc-btn").disabled = true;
+  try {
+    S.aQCRaw = await claude(QC_SYS, "REVISED APPEAL MOTION FOR QC:\n"+S.aConformed, 3000);
+    if (!S.aTabs.find(t=>t[0]==="aqc")) S.aTabs.push(["aqc","⚡ Final QC"]);
+    rebuildStabs("a");
+    switchSub("a","aqc");
+  } catch(e) { show("a-conform-err"); setText("a-conform-err","⚠ "+e.message); }
+  hide("a-qc-spin");
+  document.getElementById("a-qc-btn").disabled = false;
+}
+
+// ── DISTRICT ANALYZER ──
+const DSYS = `You are a Kansas district court order analyst specializing in CINC matters under K.S.A. 38-2201 et seq. and void judgment doctrine under K.S.A. 60-260(b).
+
+PROTOCOL:
+1. ORDER SUMMARY: Caption, case number, order type, date, key rulings, disposition.
+2. STRUCTURAL ERRORS: Missing required findings, procedural defects, evidentiary errors. Check all K.S.A. 38-22xx requirements, proffer rule (In re A.K.), right to testify (In re A.S.), counsel withdrawal (In re B.H.).
+3. JURISDICTION: UCCJEA compliance; K.S.A. 38-2273; K.S.A. 38-2279; domestic case interference.
+4. DUE PROCESS: Mathews v. Eldridge balancing. Notice defects. Right to counsel, testify, be heard. Interested party rights (J.H. v. TFI, KSC June 27, 2025).
+5. 60-260(b) GROUNDS: (b)(1) mistake, (b)(3) fraud/misconduct, (b)(4) void judgment, (b)(6) extraordinary circumstances.
+6. CONSTITUTIONAL VIOLATIONS: 14th Amendment due process and equal protection; 1st; 4th. Kansas Constitution Bill of Rights.
+7. CINC CHECKLIST: K.S.A. 38-2269(a) three-part test against order's explicit findings.
+8. APPELLATE SUCCESS: Probability of reversal/vacatur with specific arguments most likely to succeed.
+9. VACATE FRAMEWORK: Full motion to vacate or alter/amend with caption, statutory basis, arguments, certificate of service.
+
+OUTPUT FORMAT:
+[ORDER_SUMMARY]...[/ORDER_SUMMARY]
+[STRUCTURAL_ERRORS]...[/STRUCTURAL_ERRORS]
+[JURISDICTION]...[/JURISDICTION]
+[DUE_PROCESS]...[/DUE_PROCESS]
+[60260B]...[/60260B]
+[CONSTITUTIONAL]...[/CONSTITUTIONAL]
+[CINC_CHECKLIST]...[/CINC_CHECKLIST]
+[APPELLATE_SUCCESS]...[/APPELLATE_SUCCESS]
+[VACATE_FRAMEWORK]...[/VACATE_FRAMEWORK]`;
+
+async function runDst() {
+  if (!S.dFile) return;
+  show("d-spin"); hide("d-err"); hide("d-result");
+  document.getElementById("d-btn").disabled = true;
+  S.dRaw = "";
+  try {
+    const content = await readFile(S.dFile);
+    let userContent;
+    if (content && typeof content==="object" && content.type==="pdf") {
+      userContent = [{type:"document",source:{type:"base64",media_type:"application/pdf",data:content.data}},
+        {type:"text",text:"Analyze this Kansas district court order using the full protocol."}];
+    } else {
+      userContent = "ORDER TEXT:\n"+content+"\n\nAnalyze using the full protocol.";
+    }
+    S.dRaw = await claude(DSYS, userContent, 4000);
+    buildDResult();
+    // Show use-dst option in MC tab
+    document.getElementById("mc-dst-opt").style.display = "block";
+  } catch(e) { show("d-err"); setText("d-err","⚠ "+e.message); }
+  hide("d-spin");
+  document.getElementById("d-btn").disabled = false;
+}
+
+function buildDResult() {
+  const tabs = [["summary","Order Summary"],["errors","Structural Errors"],["jurisdiction","Jurisdiction"],
+    ["dueprocess","Due Process"],["voidgrounds","60-260(b) Grounds"],["constitutional","Constitutional"],
+    ["checklist","CINC Checklist"],["appellate","Appellate Success"],["vacate","Vacate Framework"]];
+  buildSubTabs("d", tabs, "summary");
+  show("d-result");
+}
+
+function renderDSubTab(id, el) {
+  const map = {
+    summary:"ORDER_SUMMARY", errors:"STRUCTURAL_ERRORS", jurisdiction:"JURISDICTION",
+    dueprocess:"DUE_PROCESS", voidgrounds:"60260B", constitutional:"CONSTITUTIONAL",
+    checklist:"CINC_CHECKLIST", appellate:"APPELLATE_SUCCESS"
+  };
+  if (map[id]) { el.innerHTML = `<div class="pre">${esc(extr(S.dRaw,map[id])||"No content generated.")}</div>`; return; }
+  if (id==="vacate") { el.innerHTML = editPanel(extr(S.dRaw,"VACATE_FRAMEWORK"),"vacate-framework-"+Date.now()+".txt","d-edit"); }
+}
+
+// ── THEORY LAB ──
+const T1SYS = `You are a Kansas CINC appellate litigation strategist evaluating a legal theory.
+
+1. FRAMEWORK FIT: Strong Fit / Partial Fit / Off-Frame.
+2. IN MOTION CHECK: Is this theory already in the appeal motion provided? YES or NO explicitly.
+3. STATUTORY ANCHOR: Specific Kansas statute, K.A.R., or published case. If none, say so.
+4. APPELLATE STRENGTH: High / Medium / Low / Unlikely with reasoning.
+5. BENEFIT ANALYSIS: If NOT already in motion AND High or Medium strength — explain exactly why adding it would benefit the appeal and how it could help get the child returned faster. Include statutory basis and at least one on-point published case.
+6. STRONGER ALTERNATIVES: If Off-Frame or Unlikely, identify 1-3 stronger theories.
+7. PRESERVATION CHECK: Was this theory raised below? Flag if not.
+
+If theory is beneficial AND not in motion, end with exactly:
+[RECOMMEND_ADD: YES — <one sentence reason>]
+Otherwise:
+[RECOMMEND_ADD: NO — <one sentence reason>]
+
+Be direct. No padding.`;
+
+const T2SYS = `You are a Kansas CINC appellate research specialist doing deep-dive research.
+
+1. UNPUBLISHED OPINIONS: Kansas COA unpublished opinions (2020-2026) touching this theory. Cite case name, docket, date.
+2. RECENT PUBLISHED OPINIONS (2024-2026): New KSC or COA published opinion changing the landscape?
+3. SISTER-STATE AUTHORITY: Colorado, Oklahoma, Missouri, Nebraska, other 10th Circuit states. Cite specifically.
+4. OVERLOOKED STATUTORY BASIS: K.S.A. 38-22xx, K.S.A. 60-2xx, K.S.A. 23-3xxx, applicable K.A.R. chapters.
+5. STATUTORY FOUNDATION REAFFIRMATION: Reaffirm or revise original statutory anchor.
+6. FINAL RECOMMENDATION: Lead / secondary / abandon — with specific reasoning.`;
+
+async function runTheory() {
+  const txt = document.getElementById("t-input").value.trim();
+  if (!txt) return;
+  show("t-spin"); hide("t-err"); hide("t-result");
+  hide("t-rec-box"); hide("t-save-btn");
+  document.getElementById("t-btn").disabled = true;
+  S.tCurrent = {text:txt, r1:"", r2:"", rec:null};
+  try {
+    const motionCtx = S.aText ? "\n\nAPPEAL MOTION TEXT:\n"+S.aText.slice(0,2000) : "";
+    const r = await claude(T1SYS, "Theory: "+txt+motionCtx, 2000);
+    S.tCurrent.r1 = r;
+    // Parse recommend
+    const m = r.match(/\[RECOMMEND_ADD:\s*(YES|NO)\s*[—–-]\s*([^\]]+)\]/i);
+    if (m) S.tCurrent.rec = {add:m[1].toUpperCase()==="YES", reason:m[2].trim()};
+    // Display
+    setText("t-output", r.replace(/\[RECOMMEND_ADD:[^\]]+\]/gi,"").trim());
+    show("t-result");
+    if (S.tCurrent.rec?.add) {
+      setText("t-rec-reason", S.tCurrent.rec.reason);
+      show("t-rec-box"); hide("t-save-btn");
+    } else {
+      hide("t-rec-box"); show("t-save-btn");
+    }
+  } catch(e) { show("t-err"); setText("t-err","⚠ "+e.message); }
+  hide("t-spin");
+  document.getElementById("t-btn").disabled = false;
+}
+
+async function runDeep() {
+  if (!S.tCurrent.r1) return;
+  show("t-deep-spin");
+  document.getElementById("t-deep-btn").disabled = true;
+  try {
+    const r = await claude(T2SYS, "Theory: "+S.tCurrent.text+"\n\nFirst evaluation:\n"+S.tCurrent.r1, 3000);
+    S.tCurrent.r2 = r;
+    setText("t-deep-text", r);
+    show("t-deep-output");
+  } catch(e) { show("t-err"); setText("t-err","⚠ "+e.message); }
+  hide("t-deep-spin");
+  document.getElementById("t-deep-btn").disabled = false;
+}
+
+function saveTheory(include) {
+  const entry = {
+    id: Date.now(),
+    text: S.tCurrent.text,
+    r1: S.tCurrent.r1,
+    r2: S.tCurrent.r2,
+    date: new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"2-digit",minute:"2-digit"}),
+    selected: include,
+    rec: S.tCurrent.rec?.add || false,
+  };
+  S.theories.unshift(entry);
+  hide("t-rec-box"); hide("t-save-btn"); hide("t-result");
+  document.getElementById("t-input").value = "";
+  S.tCurrent = {text:"",r1:"",r2:"",rec:null};
+  renderSavedTheories();
+  updateTheoryBadges();
+}
+
+function toggleTheory(id) {
+  const t = S.theories.find(t=>t.id===id);
+  if (t) { t.selected = !t.selected; renderSavedTheories(); updateTheoryBadges(); }
+}
+
+function deleteTheory(id) {
+  S.theories = S.theories.filter(t=>t.id!==id);
+  renderSavedTheories(); updateTheoryBadges();
+}
+
+function renderSavedTheories() {
+  const list = document.getElementById("t-list");
+  const saved = document.getElementById("t-saved");
+  if (!S.theories.length) { hide("t-saved"); return; }
+  show("t-saved");
+  list.innerHTML = S.theories.map(t => `
+    <div class="theory-card${t.selected?" checked":""}" id="tc-${t.id}">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <input type="checkbox" ${t.selected?"checked":""} onchange="toggleTheory(${t.id})"
+          style="margin-top:3px;width:15px;height:15px;accent-color:#F5A623;cursor:pointer;flex-shrink:0"/>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim)">${t.date}</div>
+            <div style="display:flex;gap:6px">
+              ${t.selected?'<span class="badge">queued</span>':""}
+              ${t.rec?'<span class="badge-rec">recommended</span>':""}
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--txt);margin-top:4px;line-height:1.5">${esc(t.text)}</div>
+          <details style="margin-top:6px">
+            <summary style="font-size:11px;color:var(--mut);cursor:pointer">View evaluation</summary>
+            <div class="pre" style="margin-top:6px;font-size:11px">${esc(t.r1)}</div>
+            ${t.r2?`<div style="font-size:11px;color:var(--pur);margin-top:8px">Deep Research:</div><div class="pre" style="font-size:11px">${esc(t.r2)}</div>`:""}
+          </details>
+        </div>
+        <button onclick="deleteTheory(${t.id})" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px">✕</button>
+      </div>
+    </div>`).join("");
+  const sel = S.theories.filter(t=>t.selected).length;
+  const badge = document.getElementById("t-sel-count");
+  if (sel > 0) { badge.textContent = sel+" selected"; badge.style.display="inline-block"; }
+  else badge.style.display="none";
+}
+
+function updateTheoryBadges() {
+  const sel = S.theories.filter(t=>t.selected);
+  const cnt = sel.length;
+  // Theory tab label
+  document.querySelector('[onclick="switchTab(\'theory\')"]').textContent = "🧪 Theory Lab"+(cnt>0?` (${cnt} ✓)`:"");
+  // Appellate badge
+  const ab = document.getElementById("a-theory-badge");
+  if (cnt>0) { ab.textContent = "✓ "+cnt+" theor"+(cnt!==1?"ies":"y")+" queued for incorporation"; ab.style.display="block"; }
+  else ab.style.display="none";
+  // MC badge
+  const mb = document.getElementById("mc-theory-badge");
+  if (cnt>0) { mb.textContent = "✓ "+cnt+" theor"+(cnt!==1?"ies":"y")+" selected — click Revise Motion to incorporate"; mb.style.display="block"; }
+  else mb.style.display="none";
+}
+
+// ── MOTION CREATOR ──
+const MCSYS = `You are a Kansas pro se litigation assistant. Draft response motions for a pro se parent litigant.
+
+CORE RULES:
+1. Never frame any argument that could accelerate TPR.
+2. Never overstate facts. Cite order text as such. User-supplied facts noted as "per petitioner."
+3. Flag uncertain citations as [VERIFY].
+4. Maintain parent's credibility as central strategic asset.
+5. Every motion must survive K.S.A. 60-212(b)(6) motion to dismiss.
+
+PROTOCOL:
+STEP 1 — ORDER DECONSTRUCTION: Every adverse ruling, missing required finding, procedural defect, agency statutory violation, due process issue.
+STEP 2 — MOTION TYPE: Interlocutory → K.S.A. 60-259 reconsider; Final → K.S.A. 60-259 + K.S.A. 38-2273; Void elements → K.S.A. 60-260(b)(4); Fraud → K.S.A. 60-260(b)(3); Missing 38-2269(a) findings → mandatory findings argument.
+STEP 3 — DRAFT MOTION: Caption + title + introduction + numbered arguments (authority → application → relief) + conclusion + verification + certificate of service.
+STEP 4 — STRATEGIC NOTES: What to bring, what to say, what NOT to say, filing deadline.
+
+OUTPUT FORMAT:
+[ORDER_ANALYSIS]...[/ORDER_ANALYSIS]
+[MOTION_TYPE]...[/MOTION_TYPE]
+[DRAFT_MOTION]...[/DRAFT_MOTION]
+[STRATEGIC_NOTES]...[/STRATEGIC_NOTES]`;
+
+const REVISE_SYS = `You are a Kansas appellate litigation specialist. Integrate provided legal theories into a draft motion and produce a revised motion optimized for fastest child return.
+
+1. Keep all existing valid arguments intact.
+2. Integrate each theory into the appropriate location with: statutory anchor, on-point case law, standard of review, preservation showing.
+3. Optimize argument order — fastest path to child returned comes first.
+4. Never add anything that could accelerate TPR.
+5. Maintain parent credibility throughout.
+
+OUTPUT FORMAT:
+[REVISED_WITH_THEORIES]...[/REVISED_WITH_THEORIES]
+[INTEGRATION_SUMMARY]...[/INTEGRATION_SUMMARY]`;
+
+async function runMC() {
+  const useDst = document.getElementById("mc-use-dst").checked;
+  show("mc-spin"); hide("mc-err"); hide("mc-result");
+  document.getElementById("mc-btn").disabled = true;
+  S.mcDraft = ""; S.mcRevised = ""; S.mcQCRaw = "";
+  try {
+    let orderText = "";
+    const ctx = document.getElementById("mc-ctx").value.trim();
+    if (useDst && S.dRaw) {
+      orderText = "[PRIOR DISTRICT ANALYZER OUTPUT]\n"+S.dRaw;
+    } else if (S.mcFile) {
+      const content = await readFile(S.mcFile);
+      if (content && typeof content==="object" && content.type==="pdf") {
+        const userContent = [
+          {type:"document",source:{type:"base64",media_type:"application/pdf",data:content.data}},
+          {type:"text",text:(ctx?"Additional context:\n"+ctx+"\n\n":"")+"Analyze this district court order and draft a response motion."}
+        ];
+        const r = await claude(MCSYS, userContent, 4000);
+        S.mcDraft = extr(r,"DRAFT_MOTION");
+        buildMCResult(r);
+        hide("mc-spin");
+        document.getElementById("mc-btn").disabled = false;
+        return;
+      } else { orderText = content || ""; }
+    } else { show("mc-err"); setText("mc-err","⚠ Upload an order or use District Analyzer output."); hide("mc-spin"); document.getElementById("mc-btn").disabled=false; return; }
+    const msg = orderText+(ctx?"\n\nAdditional context:\n"+ctx:"");
+    const r = await claude(MCSYS, msg, 4000);
+    S.mcDraft = extr(r,"DRAFT_MOTION");
+    buildMCResult(r);
+  } catch(e) { show("mc-err"); setText("mc-err","⚠ "+e.message); }
+  hide("mc-spin");
+  document.getElementById("mc-btn").disabled = false;
+}
+
+function buildMCResult(r) {
+  S.mcRaw = r;
+  const tabs = [["analysis","Order Analysis"],["type","Motion Type"],["draft","Draft Motion"],["strategy","Strategic Notes"]];
+  buildSubTabs("mc", tabs, "analysis");
+  show("mc-result");
+  show("mc-qc-btn");
+}
+
+function renderMCSubTab(id, el) {
+  if (id==="analysis") el.innerHTML=`<div class="pre">${esc(extr(S.mcRaw,"ORDER_ANALYSIS")||"No analysis generated.")}</div>`;
+  else if (id==="type") el.innerHTML=`<div class="pre">${esc(extr(S.mcRaw,"MOTION_TYPE")||"No motion type determined.")}</div>`;
+  else if (id==="draft") el.innerHTML=editPanel(S.mcDraft,"draft-motion-"+Date.now()+".txt","mc-edit");
+  else if (id==="strategy") el.innerHTML=`<div class="pre">${esc(extr(S.mcRaw,"STRATEGIC_NOTES")||"No strategic notes.")}</div>`;
+  else if (id==="revised") {
+    if (S.mcRevised) {
+      const intSum = S.mcRevIntSum||"";
+      el.innerHTML = (intSum?`<div class="qc-sec"><div class="qc-lbl">Integration Summary</div><div class="pre" style="font-size:11px">${esc(intSum)}</div></div>`:"")
+        + editPanel(S.mcRevised,"revised-motion-"+Date.now()+".txt","mc-rev-edit");
+    } else el.innerHTML=`<div class="pre" style="color:var(--dim)">Click "✦ Revise Motion" to generate.</div>`;
+  }
+  else if (id==="mcqc") el.innerHTML=renderQC(S.mcQCRaw);
+}
+
+async function runRevise() {
+  const base = S.mcDraft;
+  if (!base) { show("mc-revise-err"); setText("mc-revise-err","⚠ No draft motion to revise."); return; }
+  show("mc-revise-spin"); hide("mc-revise-err");
+  document.getElementById("mc-revise-btn").disabled = true;
+  S.mcRevised = ""; S.mcQCRaw = "";
+  try {
+    const sel = S.theories.filter(t=>t.selected);
+    const tb = sel.length ? "\n\nTHEORIES TO INCORPORATE:\n"+sel.map((t,i)=>`${i+1}. ${t.text}\nEVALUATION: ${t.r1}\nDEEP RESEARCH: ${t.r2||"(not run)"}`).join("\n\n") : "";
+    const r = await claude(REVISE_SYS, "CURRENT MOTION:\n"+base+tb, 4000);
+    S.mcRevised = extr(r,"REVISED_WITH_THEORIES") || r;
+    S.mcRevIntSum = extr(r,"INTEGRATION_SUMMARY");
+    if (!S.mcTabs.find(t=>t[0]==="revised")) S.mcTabs.push(["revised","✦ Revised Motion"]);
+    if (!S.mcTabs.find(t=>t[0]==="mcqc")) S.mcTabs.push(["mcqc","⚡ Final QC"]);
+    rebuildStabs("mc");
+    switchSub("mc","revised");
+    show("mc-qc-btn");
+  } catch(e) { show("mc-revise-err"); setText("mc-revise-err","⚠ "+e.message); }
+  hide("mc-revise-spin");
+  document.getElementById("mc-revise-btn").disabled = false;
+}
+
+async function runMCQC() {
+  const motion = S.mcRevised || S.mcDraft;
+  if (!motion) return;
+  show("mc-qc-spin");
+  document.getElementById("mc-qc-btn").disabled = true;
+  try {
+    S.mcQCRaw = await claude(QC_SYS, "MOTION FOR QC:\n"+motion, 3000);
+    if (!S.mcTabs.find(t=>t[0]==="mcqc")) S.mcTabs.push(["mcqc","⚡ Final QC"]);
+    rebuildStabs("mc");
+    switchSub("mc","mcqc");
+  } catch(e) { show("mc-revise-err"); setText("mc-revise-err","⚠ "+e.message); }
+  hide("mc-qc-spin");
+  document.getElementById("mc-qc-btn").disabled = false;
+}
+
+// ── QC RENDER ──
+function renderQC(raw) {
+  if (!raw) return `<div class="pre" style="color:var(--dim)">Run Final QC to see results.</div>`;
+  return `
+    <div class="qc-sec"><div class="qc-lbl">🔍 Dismissal Technicalities</div><div class="pre">${esc(extr(raw,"QC_DISMISSAL"))}</div></div>
+    <div class="qc-sec"><div class="qc-lbl">⚠ Weak Spots</div><div class="pre">${esc(extr(raw,"QC_WEAK_SPOTS"))}</div></div>
+    <div class="qc-sec"><div class="qc-lbl">📚 Missing Authorities</div><div class="pre">${esc(extr(raw,"QC_MISSING"))}</div></div>
+    <div class="qc-sec"><div class="qc-lbl">📊 Final Assessment</div><div class="pre">${esc(extr(raw,"QC_ASSESSMENT"))}</div></div>
+    <div class="qc-sec qc-summary"><div class="qc-lbl" style="color:var(--grn)">💬 Summary for Parent (Plain English)</div><div class="pre" style="color:#bbf7d0">${esc(extr(raw,"QC_SUMMARY"))}</div></div>
+    <div style="margin-top:12px"><button class="btn-sm" onclick="dl(${JSON.stringify(raw)},'final-qc-${Date.now()}.txt')">⬇ Download QC Report</button></div>`;
+}
+
+// ── EDIT PANEL ──
+function editPanel(content, fname, editId) {
+  const safe = esc(content||"");
+  return `<textarea class="edit-area" id="${editId}">${safe}</textarea>
+    <div class="edit-btns">
+      <button class="btn-sm" onclick="copyEdit('${editId}')">📋 Copy</button>
+      <button class="btn-sm" onclick="dlEdit('${editId}','${fname}')">⬇ Download .txt</button>
+      <button class="btn-sm btn-danger" onclick="clearEdit('${editId}')">🗑</button>
+    </div>`;
+}
+function copyEdit(id) { const e=document.getElementById(id); if(e) navigator.clipboard.writeText(e.value); }
+function dlEdit(id,fname) { const e=document.getElementById(id); if(e) dl(e.value,fname); }
+function clearEdit(id) { if(confirm("Clear this draft?")) { const e=document.getElementById(id); if(e) e.value=""; } }
+
+// ── REBUILD STABS ──
+function rebuildStabs(prefix) {
+  const tabs = S[prefix+"Tabs"];
+  const cur = S[prefix+"SubTab"];
+  const stabs = document.getElementById(prefix+"-stabs");
+  stabs.innerHTML = tabs.map(([id,lbl]) =>
+    `<button class="stab${id===cur?" active":""}" onclick="switchSub('${prefix}','${id}')">${lbl}</button>`
+  ).join("");
+}
+
+// ── DOWNLOAD ALL ──
+function dlAll(prefix) {
+  if (prefix==="a") {
+    const txt = "APPELLATE ANALYSIS\n"+"=".repeat(60)+"\n\n"+
+      "SCORECARD\n"+extr(S.aRaw,"SCORECARD")+"\n\nRULING\n"+extr(S.aRaw,"RULING")+
+      "\n\nFIRST IMPRESSION\n"+extr(S.aRaw,"FIRST_IMPRESSION")+"\n\nSTRUCTURAL ERRORS\n"+extr(S.aRaw,"STRUCTURAL_ERRORS")+
+      "\n\nFILING CHECKLIST\n"+extr(S.aRaw,"FILING_CHECKLIST")+
+      (S.aConformed?"\n\nCONFORMED MOTION\n"+S.aConformed:"")+
+      (S.aQCRaw?"\n\nFINAL QC\n"+S.aQCRaw:"");
+    dl(txt,"appellate-analysis-"+Date.now()+".txt");
+  } else if (prefix==="d") {
+    const txt = "DISTRICT ORDER ANALYSIS\n"+"=".repeat(60)+"\n\n"+
+      ["ORDER_SUMMARY","STRUCTURAL_ERRORS","JURISDICTION","DUE_PROCESS","60260B","CONSTITUTIONAL","CINC_CHECKLIST","APPELLATE_SUCCESS","VACATE_FRAMEWORK"]
+      .map(t=>t+"\n"+extr(S.dRaw,t)).join("\n\n");
+    dl(txt,"district-analysis-"+Date.now()+".txt");
+  } else if (prefix==="mc") {
+    const txt = "MOTION CREATOR OUTPUT\n"+"=".repeat(60)+"\n\n"+
+      "ORDER ANALYSIS\n"+extr(S.mcRaw||"","ORDER_ANALYSIS")+"\n\nMOTION TYPE\n"+extr(S.mcRaw||"","MOTION_TYPE")+
+      "\n\nDRAFT MOTION\n"+S.mcDraft+(S.mcRevised?"\n\nREVISED MOTION\n"+S.mcRevised:"")+
+      (S.mcQCRaw?"\n\nFINAL QC\n"+S.mcQCRaw:"");
+    dl(txt,"motion-creator-"+Date.now()+".txt");
+  }
+}
+
+// ── ESCAPE HTML ──
+function esc(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+</script>
+
+<!-- Mammoth for DOCX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+</body>
+</html>
