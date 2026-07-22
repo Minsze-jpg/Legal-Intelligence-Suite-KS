@@ -142,8 +142,18 @@ footer{text-align:center;padding:14px;font-size:10px;color:var(--dim);font-famil
     <div class="gate-desc">AI-powered CINC analysis, motion drafting, and appellate strategy for pro se parents fighting to bring their children home.<br/><br/>Enter your Anthropic API key to continue. Your key stays in this browser session only.</div>
     <div class="gate-err" id="gate-err"></div>
     <input class="gate-input" id="gate-input" type="password" placeholder="sk-ant-api03-…" autocomplete="off"/>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11px;color:var(--mut);font-family:'IBM Plex Mono',monospace;">
+        <input type="checkbox" id="gate-remember" style="width:14px;height:14px;accent-color:var(--amb);cursor:pointer;"/>
+        Remember key in this browser
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--mut);font-family:'IBM Plex Mono',monospace;">
+        <input type="file" id="gate-file" accept=".txt" style="display:none" onchange="importKeyFile(this)"/>
+        <button class="btn-sm" onclick="document.getElementById('gate-file').click()" style="font-size:10px;padding:4px 10px;font-family:'IBM Plex Mono',monospace;">⬆ Import .txt</button>
+      </label>
+    </div>
     <button class="gate-btn" onclick="submitKey()">Enter Suite →</button>
-    <div class="gate-note">Don't have a key? Get one at <a class="gate-link" href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br/>Your key is never logged, stored on any server, or shared.</div>
+    <div class="gate-note">Don't have a key? Get one at <a class="gate-link" href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br/>Your key is never logged, stored on any server, or shared.<br/>Remembered keys are stored in your browser's localStorage only.</div>
   </div>
 </div>
 
@@ -302,8 +312,14 @@ const S = {
 
 // ── KEY GATE ──
 window.onload = () => {
-  const saved = sessionStorage.getItem("dw_key");
-  if (saved) { S.key = saved; showApp(); }
+  const saved = localStorage.getItem("dw_key") || sessionStorage.getItem("dw_key");
+  if (saved) {
+    S.key = saved;
+    // Pre-fill input and check remember if from localStorage
+    document.getElementById("gate-input").value = saved;
+    if (localStorage.getItem("dw_key")) document.getElementById("gate-remember").checked = true;
+    showApp();
+  }
   document.getElementById("gate-input").addEventListener("keydown", e => { if(e.key==="Enter") submitKey(); });
 };
 
@@ -316,8 +332,32 @@ function submitKey() {
     err.style.display = "block"; return;
   }
   S.key = v;
-  sessionStorage.setItem("dw_key", v);
+  const remember = document.getElementById("gate-remember").checked;
+  if (remember) {
+    localStorage.setItem("dw_key", v);
+  } else {
+    localStorage.removeItem("dw_key");
+    sessionStorage.setItem("dw_key", v);
+  }
   showApp();
+}
+
+function importKeyFile(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const key = e.target.result.trim();
+    const err = document.getElementById("gate-err");
+    if (!key.startsWith("sk-ant-")) {
+      err.textContent = "⚠ File does not contain a valid Anthropic API key (must start with sk-ant-)";
+      err.style.display = "block"; return;
+    }
+    err.style.display = "none";
+    document.getElementById("gate-input").value = key;
+  };
+  reader.readAsText(f);
+  inp.value = "";
 }
 
 function showApp() {
